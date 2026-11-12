@@ -1,0 +1,6 @@
+{
+  "meta": {
+    "title": "Context meter in the composer",
+    "description": "Moves the context-occupancy ring from the dock row under the card into the composer tool row, with a click-open system/tools/conversation breakdown."
+  }
+}
