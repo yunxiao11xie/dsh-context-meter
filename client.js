@@ -15,7 +15,7 @@ window.__ModuleLoader__.load({
     // hides it and renders its own cell into the composer tool row.
     // After a DSH upgrade, re-read the class from the packaged client bundle
     // (search the asar for "ContextMeter.module.css") and update this line.
-    const SHIPPED_METER_CLASS = 'oSKTwq_root';
+    const SHIPPED_METER_CLASS = 'DXuOLW_root';
 
     // Where the plugin puts its own cell: the list slot that already holds the
     // shipped composer controls (attach/permission/plan) and the prompt-chips
@@ -71,8 +71,14 @@ window.__ModuleLoader__.load({
 /* The shipped meter keeps its own row under the card. Hide it there and drop the
    row's reserved height so the composer loses ~26px. Both selectors are scoped to
    the dock, so the header meter (if any) and the tool-row cell stay untouched. */
-[data-composer-dock] .${SHIPPED_METER_CLASS} { display: none !important; }
-[data-composer-dock] { min-height: 0 !important; padding-top: 0 !important; }
+[data-composer-dock] .${SHIPPED_METER_CLASS},
+[data-composer-dock] .hNGZaa_pill,
+[data-composer-dock] .hNGZaa_pill ~ *,
+.GRgSLq_dock .${SHIPPED_METER_CLASS},
+.GRgSLq_dock .hNGZaa_pill,
+.GRgSLq_dock .hNGZaa_pill ~ * { display: none !important; }
+[data-composer-dock],
+.GRgSLq_dock { min-height: 0 !important; padding-top: 0 !important; }
 
 .dsh-cm { display: inline-flex; align-items: center; }
 .dsh-cm__trigger {
