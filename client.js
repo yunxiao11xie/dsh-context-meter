@@ -15,7 +15,11 @@ window.__ModuleLoader__.load({
     // hides it and renders its own cell into the composer tool row.
     // After a DSH upgrade, re-read the class from the packaged client bundle
     // (search the asar for "ContextMeter.module.css") and update this line.
-    const SHIPPED_METER_CLASS = 'DXuOLW_root';
+    // rc.2: the meter's own module is A6Bq1a_ (root{flex:none;display:inline-flex}).
+    // DXuOLW_root in the same dock region is TodoPanel — do NOT target it.
+    // Keep every known build's class in the selector so one package serves
+    // multiple dsh releases; add the next prefix here when DSH bumps again.
+    const SHIPPED_METER_CLASSES = ['A6Bq1a_root', 'oSKTwq_root'];
 
     // Where the plugin puts its own cell: the list slot that already holds the
     // shipped composer controls (attach/permission/plan) and the prompt-chips
@@ -67,14 +71,17 @@ window.__ModuleLoader__.load({
     ];
 
     function css() {
+      const hideMeter = SHIPPED_METER_CLASSES.flatMap((cls) => [
+        `[data-composer-dock] .${cls}`,
+        `.GRgSLq_dock .${cls}`,
+      ]).join(',\n');
       return `
 /* The shipped meter keeps its own row under the card. Hide it there and drop the
    row's reserved height so the composer loses ~26px. Both selectors are scoped to
    the dock, so the header meter (if any) and the tool-row cell stay untouched. */
-[data-composer-dock] .${SHIPPED_METER_CLASS},
+${hideMeter},
 [data-composer-dock] .hNGZaa_pill,
 [data-composer-dock] .hNGZaa_pill ~ *,
-.GRgSLq_dock .${SHIPPED_METER_CLASS},
 .GRgSLq_dock .hNGZaa_pill,
 .GRgSLq_dock .hNGZaa_pill ~ * { display: none !important; }
 [data-composer-dock],
