@@ -10,8 +10,11 @@ DeepSeek Harness 自带的 `ContextMeter` 渲染在卡片外单独的一行
 
 - 同样的圆环 + 百分比，数据来自 `contextPressure` 投影；
 - 生成过程中始终可见，位置不会跳；
-- 点击展开「系统提示 / 工具 / 对话」的占比明细（`contextBreakdown`），
-  并显示 `~已用 / 窗口` 的 token 数。
+- 圆环旁新增累计**缓存命中徽章**（如 `缓存命中 96%`），数据来自 `tokenUsage` 投影，悬停显示 token 明细；
+- 点击展开「系统提示 / 工具 / 对话」占比明细（`contextBreakdown`）与 `~已用/窗口`。
+
+卡片下方那行官方 dock（上下文圆环 + `activity`/`usage` 统计药丸）会被隐藏——
+这些信息现在住在工具行和右上角时钟里。
 
 ## 依赖
 

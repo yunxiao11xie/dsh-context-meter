@@ -43,6 +43,8 @@ window.__ModuleLoader__.load({
       'meter.tools': '工具',
       'meter.messages': '对话',
       'meter.title': '上下文用量 · 点击查看明细',
+      'meter.cache': '缓存命中 {p}%',
+      'meter.cacheTip': '缓存命中（累计）· 总量 {total} tok · 未缓存输入 {in} · 缓存读 {read} · 缓存写 {write}',
     };
 
     const EN = {
@@ -51,6 +53,8 @@ window.__ModuleLoader__.load({
       'meter.tools': 'Tools',
       'meter.messages': 'Conversation',
       'meter.title': 'Context usage · click for the breakdown',
+      'meter.cache': 'Cache {p}%',
+      'meter.cacheTip': 'Cumulative cache hit · {total} tok total · uncached {in} · read {read} · write {write}',
     };
 
     // Legend rows, in bar-segment order.
@@ -80,8 +84,10 @@ window.__ModuleLoader__.load({
    row's reserved height so the composer loses ~26px. Both selectors are scoped to
    the dock, so the header meter (if any) and the tool-row cell stay untouched. */
 ${hideMeter},
+[data-composer-dock] [data-composer-stat],
 [data-composer-dock] .hNGZaa_pill,
 [data-composer-dock] .hNGZaa_pill ~ *,
+.GRgSLq_dock [data-composer-stat],
 .GRgSLq_dock .hNGZaa_pill,
 .GRgSLq_dock .hNGZaa_pill ~ * { display: none !important; }
 [data-composer-dock],
@@ -103,6 +109,16 @@ ${hideMeter},
 }
 .dsh-cm__trigger:focus-visible { outline: 2px solid var(--dsw-alias-brand-primary); outline-offset: 1px; }
 .dsh-cm__track { fill: none; stroke: var(--dsw-alias-border-l3); stroke-width: 2px; }
+.dsh-cm__cache {
+  display: inline-flex; align-items: center;
+  height: 24px; padding: 0 6px; border: none; border-radius: 6px;
+  background: transparent; color: var(--dsw-alias-label-tertiary);
+  font: inherit; font-size: 12px; line-height: 16px; cursor: pointer;
+  font-variant-numeric: tabular-nums; white-space: nowrap;
+  transition: background-color 0.12s ease, color 0.12s ease;
+}
+.dsh-cm__cache:hover { background: var(--dsw-alias-interactive-bg-hover); color: var(--dsw-alias-label-secondary); }
+.dsh-cm__cache:focus-visible { outline: 2px solid var(--dsw-alias-brand-primary); outline-offset: 1px; }
 .dsh-cm__fill { fill: none; stroke: currentColor; stroke-width: 2px; stroke-linecap: round; }
 
 .dsh-cm__panel {
@@ -206,6 +222,7 @@ ${hideMeter},
           const t = useTranslate();
           const pressure = useProjection('contextPressure');
           const breakdown = useProjection('contextBreakdown');
+          const tokenUsage = useProjection('tokenUsage');
           const [open, setOpen] = React.useState(false);
           const [anchor, setAnchor] = React.useState(null);
           const triggerRef = React.useRef(null);
@@ -248,6 +265,30 @@ ${hideMeter},
             .split(READING_SLOT)
             .map((part) => part.trim());
           const label = [headBefore, reading, headAfter].filter((part) => part.length > 0).join(' ');
+
+          // Cumulative cache-hit badge (from the usage dock pill's projection):
+          // hit = cacheRead / (uncachedInput + cacheRead), the share of prompt
+          // tokens the provider served from cache across the whole session.
+          const uncached = Number(tokenUsage?.uncachedInputTokens) || 0;
+          const cacheRead = Number(tokenUsage?.cacheReadTokens) || 0;
+          const cacheWrite = Number(tokenUsage?.cacheWriteTokens) || 0;
+          const outputs = Number(tokenUsage?.outputTokens) || 0;
+          const promptTotal = uncached + cacheRead;
+          const cachePct =
+            promptTotal > 0 ? Math.round((cacheRead / promptTotal) * 100) : null;
+          const cacheLabel =
+            cachePct === null
+              ? null
+              : t('meter.cache', { p: cachePct });
+          const cacheTip =
+            cachePct === null
+              ? null
+              : t('meter.cacheTip', {
+                  total: (promptTotal + outputs).toLocaleString(),
+                  in: uncached.toLocaleString(),
+                  read: cacheRead.toLocaleString(),
+                  write: cacheWrite.toLocaleString(),
+                });
 
           const toggle = () => {
             if (open) {
@@ -372,6 +413,17 @@ ${hideMeter},
                 }),
               ),
               h('span', null, reading),
+            ),
+            cacheLabel === null ? null : h(
+              'button',
+              {
+                type: 'button',
+                className: 'dsh-cm__cache',
+                title: cacheTip,
+                'aria-label': cacheLabel,
+                onClick: toggle,
+              },
+              cacheLabel,
             ),
             panel,
           );

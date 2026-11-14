@@ -11,8 +11,13 @@ This plugin hides that instance and renders an equivalent cell in the
 
 - the same ring and percentage, fed by the `contextPressure` projection;
 - stays visible while generating, so the position never jumps;
+- a cumulative **cache-hit badge** (e.g. `缓存命中 96%`) beside the reading, from the `tokenUsage` projection, with a token-breakdown tooltip;
 - clicking opens the system prompt / tools / conversation breakdown
   (`contextBreakdown`), with `~used / window` in tokens.
+
+The shipped dock row below the composer card (context meter plus the
+`activity` / `usage` stat pills) is hidden — its facts now live in the tool
+row and the header clock.
 
 ## Requirements
 
